@@ -1,31 +1,95 @@
-:root { --bg: #0f172a; --card: #1e293b; --acc: #06b6d4; --cw: 100px; }
-body { margin: 0; background: var(--bg); color: white; font-family: -apple-system, sans-serif; overflow: hidden; }
+/* Типографика Muse Group / Технологичный минимализм */
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --border: #e5e5e5;
+    --accent: #000000;
+    --font: 'Inter', -apple-system, monospace;
+}
 
-.app-container { height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; }
+body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font); overflow: hidden; letter-spacing: -0.02em;
+}
 
-header { display: flex; justify-content: space-between; align-items: center; }
-.profile-btn { display: flex; gap: 10px; background: var(--card); padding: 8px 15px; border-radius: 20px; font-weight: bold; }
-.balance { color: var(--acc); font-weight: bold; }
+.app-container {
+    height: 100vh; display: flex; flex-direction: column;
+    padding: 24px; box-sizing: border-box;
+}
 
-.machine-frame { position: relative; width: 100%; height: 140px; background: #020617; border-radius: 20px; overflow: hidden; border: 2px solid #334155; margin-top: 40px; }
-.marker { position: absolute; left: 50%; transform: translateX(-50%); top: 0; color: var(--acc); z-index: 10; font-size: 20px; }
+header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+}
+
+.profile-btn { cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.avatar { color: #555; }
+
+/* Slot Machine - Минималистичная версия */
+.machine-frame {
+    position: relative; width: 100%; height: 120px;
+    border-top: 1px solid var(--text); border-bottom: 1px solid var(--text);
+    margin: 60px 0 30px; overflow: hidden;
+}
+
+.line-marker {
+    position: absolute; left: 50%; top: 0; bottom: 0;
+    width: 2px; background: var(--text); z-index: 10;
+}
+
 .slot-window { height: 100%; display: flex; align-items: center; }
-.tape { display: flex; gap: 10px; transition: transform 4s cubic-bezier(0.15, 0, 0.05, 1); }
+.tape { display: flex; gap: 0; transition: transform 4s cubic-bezier(0.15, 0, 0.05, 1); }
 
-.card { min-width: var(--cw); height: 100px; background: var(--card); border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-.card span { font-size: 30px; }
-.card small { font-size: 10px; margin-top: 5px; text-align: center; padding: 0 5px; }
+.card {
+    min-width: 100px; height: 100px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; flex-shrink: 0;
+    border-right: 1px solid var(--border);
+}
+.card span { font-size: 24px; filter: grayscale(1); }
+.card small { font-size: 9px; font-weight: 700; text-transform: uppercase; margin-top: 8px; }
 
-.info-text { text-align: center; margin-top: 20px; }
-#spin-btn { width: 100%; padding: 20px; border-radius: 18px; border: none; background: linear-gradient(45deg, #06b6d4, #3b82f6); color: white; font-weight: 900; font-size: 20px; box-shadow: 0 4px 15px rgba(6,182,212,0.4); }
+/* Mission text */
+.mission h1 { font-size: 32px; font-weight: 800; margin: 0; text-transform: uppercase; }
+.mission p { font-size: 14px; line-height: 1.5; color: #666; max-width: 80%; }
 
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+/* Buttons & Footer */
+footer { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+#spin-btn {
+    width: 100%; padding: 20px; background: var(--text); color: var(--bg);
+    border: none; font-weight: 700; font-size: 14px; text-transform: uppercase;
+    cursor: pointer; transition: opacity 0.2s;
+}
+
+.legal-box { text-align: center; font-size: 10px; font-weight: 500; color: #999; }
+.legal-box a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--text); }
+
+/* Modal */
+.modal {
+    position: fixed; inset: 0; background: rgba(255,255,255,0.98);
+    display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+}
 .hidden { display: none !important; }
-.modal-card, .profile-card { background: var(--card); width: 100%; max-width: 320px; padding: 30px; border-radius: 25px; text-align: center; border: 1px solid var(--acc); }
 
-.promo-box { background: #0f172a; padding: 20px; border-radius: 15px; margin: 20px 0; border: 1px dashed var(--acc); font-size: 24px; font-weight: bold; letter-spacing: 2px; }
-.main-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: white; font-weight: bold; color: black; }
+.modal-card {
+    width: 100%; max-width: 320px; border: 2px solid var(--text);
+    background: var(--bg); padding: 24px;
+}
 
-#history-list { height: 300px; overflow-y: auto; margin-top: 20px; }
-.history-item { background: #0f172a; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-.p-header { display: flex; justify-content: space-between; align-items: center; }
+.modal-header {
+    display: flex; justify-content: space-between; font-weight: 800;
+    font-size: 12px; text-transform: uppercase; margin-bottom: 30px;
+}
+.modal-header button { background: none; border: none; font-weight: 800; cursor: pointer; }
+
+.promo-content { font-size: 24px; font-weight: 800; margin-bottom: 30px; word-break: break-all; }
+
+.action-btn {
+    width: 100%; padding: 16px; background: var(--text); color: var(--bg);
+    border: none; font-weight: 700; text-transform: uppercase; cursor: pointer;
+}
+
+#history-list { text-align: left; max-height: 300px; overflow-y: auto; }
+.history-item {
+    border-bottom: 1px solid var(--border); padding: 12px 0;
+    display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;
+}
