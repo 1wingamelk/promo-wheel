@@ -55,7 +55,7 @@ spinBtn.onclick = () => {
         tape.style.transform = `translateX(${finalPos}px)`;
 
         setTimeout(() => {
-            showWinModal(prize, "НОВЫЙ ВЫИГРЫШ");
+            showWinModal(prize);
             saveWin(prize);
             spinBtn.disabled = false;
             spinBtn.innerText = "ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)";
@@ -64,19 +64,16 @@ spinBtn.onclick = () => {
     }, 50);
 };
 
-// Функция показа окна (используется и для выигрыша, и для клика по истории)
-function showWinModal(item, label = "ДЕТАЛИ ПРИЗА") {
+function showWinModal(item) {
     const promoBox = document.getElementById('promo-box');
     const claimBtn = document.getElementById('claim-btn');
-    const typeLabel = document.getElementById('modal-type-label');
     
-    typeLabel.innerText = label;
     document.getElementById('modal-icon').innerText = item.icon || '🎁';
     document.getElementById('modal-name').innerText = item.title.toUpperCase();
     document.getElementById('modal-desc').innerText = item.desc || 'Используйте этот код для получения бонуса в приложении партнера.';
 
     if (item.type === 'link') {
-        promoBox.innerText = "ССЫЛКА ГОТОВА";
+        promoBox.innerText = "READY";
         claimBtn.innerText = "ПЕРЕЙТИ";
         claimBtn.onclick = () => { window.open(item.url, '_blank'); };
     } else {
@@ -87,9 +84,6 @@ function showWinModal(item, label = "ДЕТАЛИ ПРИЗА") {
             tg.showAlert("СКОПИРОВАНО В БУФЕР");
         };
     }
-    
-    // Закрываем профиль, если он открыт, перед показом модалки
-    document.getElementById('profile-modal').classList.add('hidden');
     document.getElementById('modal').classList.remove('hidden');
 }
 
@@ -102,39 +96,26 @@ function copyText(text) {
 }
 
 function saveWin(item) {
-    const winEntry = { 
-        ...item, 
-        historyId: Date.now(), // Уникальный ID для поиска в истории
-        time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) 
-    };
-    history.unshift(winEntry);
+    history.unshift({ ...item, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
     localStorage.setItem('myWins', JSON.stringify(history));
     renderHistory();
 }
 
 function renderHistory() {
     if (!historyList) return;
-    historyList.innerHTML = history.length ? history.map((i, index) => `
-        <div class="history-row" onclick="openHistoryItem(${index})">
+    historyList.innerHTML = history.length ? history.map(i => `
+        <div class="history-row">
             <div class="h-info">
                 <span class="h-name">${i.title.toUpperCase()}</span>
                 <span class="h-time">${i.time}</span>
             </div>
-            <span class="h-badge">${i.icon || '🎁'}</span>
+            <span class="h-code">${i.code || 'LINK'}</span>
         </div>
-    `).join('') : '<div style="text-align:center; padding: 40px; color:#ccc; font-size:12px;">У ВАС ПОКА НЕТ ВЫИГРЫШЕЙ</div>';
+    `).join('') : '<div style="text-align:center; padding: 20px; color:#ccc; font-size:12px;">ИСТОРИЯ ПУСТА</div>';
 }
 
-// Открытие модалки из истории
-window.openHistoryItem = (index) => {
-    const prize = history[index];
-    if (prize) {
-        showWinModal(prize, "ПРОСМОТР ПРИЗА");
-    }
-};
-
 function cancelSubscription() {
-    tg.showConfirm("Отключить автоматическое продление?", (ok) => {
+    tg.showConfirm("Вы действительно хотите отключить автоматическое продление?", (ok) => {
         if (ok) tg.showAlert("Автопродление будет отключено.");
     });
 }
