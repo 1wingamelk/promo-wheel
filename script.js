@@ -7,8 +7,6 @@ const historyList = document.getElementById('history-list');
 
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
-let currentDeck = []; // Здесь будет перемешанный список ID
-
 const CARD_WIDTH = 100;
 
 async function init() {
@@ -16,7 +14,7 @@ async function init() {
         const res = await fetch('offers.json');
         offers = await res.json();
         
-        generateRandomDeck(200); // Создаем случайную ленту из 200 элементов
+        renderSecretTape(150);
         resetTape();
 
         if (tg.initDataUnsafe?.user) {
@@ -24,64 +22,60 @@ async function init() {
             document.getElementById('username').innerText = name.toUpperCase() + ' / СИСТЕМА';
         }
         renderHistory();
-    } catch (e) { console.error("ОШИБКА_ЗАГРУЗКИ"); }
+    } catch (e) { console.error("LOAD_ERROR"); }
 }
 
-// Создает массив случайных ID с равным шансом
-function generateRandomDeck(size) {
-    currentDeck = [];
+function renderSecretTape(count) {
     tape.innerHTML = '';
-    
-    for (let i = 0; i < size; i++) {
-        // Выбираем случайный объект из доступных в offers
-        const randomIndex = Math.floor(Math.random() * offers.length);
-        const item = offers[randomIndex];
-        
-        currentDeck.push(item.id); // Сохраняем ID в колоду
-        
+    for (let i = 0; i < count; i++) {
         const card = document.createElement('div');
         card.className = 'card';
         card.style.width = CARD_WIDTH + 'px';
-        card.innerHTML = `<span>${item.icon}</span><small>${item.title}</small>`;
+        card.innerHTML = `<div class="secret">[ ? ]</div><div class="label">DATA_BLOCK</div>`;
         tape.appendChild(card);
     }
 }
 
 function resetTape() {
     tape.style.transition = "none";
-    const centerShift = window.innerWidth / 2 - (CARD_WIDTH / 2);
-    tape.style.transform = `translateX(${centerShift}px)`;
+    const center = window.innerWidth / 2;
+    tape.style.transform = `translateX(${center - (CARD_WIDTH / 2)}px)`;
 }
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    spinBtn.innerText = "ГЕНЕРАЦИЯ_ОТВЕТА...";
+    spinBtn.innerText = "ДЕШИФРОВКА...";
     resetTape();
 
     setTimeout(() => {
-        // 1. Выбираем случайную позицию в конце ленты (например, между 150 и 180)
-        const targetIndex = Math.floor(Math.random() * 30) + 150; 
+        // 1. Выбираем рандомный бонус
+        const prize = offers[Math.floor(Math.random() * offers.length)];
         
-        // 2. Получаем ID карточки, которая окажется под стрелкой
-        const winningId = currentDeck[targetIndex];
+        // 2. Выбираем случайную карточку в конце ленты
+        const targetIdx = Math.floor(Math.random() * 20) + 110; 
         
-        // 3. Находим полные данные бонуса по этому ID
-        const winningPrize = offers.find(o => o.id === winningId);
-        
-        // 4. Считаем позицию для остановки
-        const centerOffset = window.innerWidth / 2;
-        const finalPosition = centerOffset - (targetIndex * CARD_WIDTH) - (CARD_WIDTH / 2);
+        // 3. "Проявляем" приз на этой карточке
+        const targetCard = tape.children[targetIdx];
+        targetCard.innerHTML = `
+            <span style="font-size: 28px;">${prize.icon}</span>
+            <small style="font-size: 9px; font-weight: 800; margin-top: 5px; text-transform: uppercase;">${prize.title}</small>
+        `;
+        targetCard.style.background = "#fff";
+
+        // 4. Считаем позицию остановки
+        const center = window.innerWidth / 2;
+        const finalPos = center - (targetIdx * CARD_WIDTH) - (CARD_WIDTH / 2);
         
         tape.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.05, 1)";
-        tape.style.transform = `translateX(${finalPosition}px)`;
+        tape.style.transform = `translateX(${finalPos}px)`;
 
         setTimeout(() => {
-            showWinModal(winningPrize);
-            saveWin(winningPrize);
+            showWinModal(prize);
+            saveWin(prize);
             spinBtn.disabled = false;
             spinBtn.innerText = "ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)";
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }, 5200);
+        }, 5300);
     }, 50);
 };
 
@@ -91,25 +85,22 @@ function showWinModal(item) {
     document.getElementById('modal-title').innerText = item.title.toUpperCase();
 
     if (item.type === 'link') {
-        promoBox.innerHTML = `<span style="font-size:14px; color:#999;">ID: ${item.id} | ПРЯМАЯ ССЫЛКА</span>`;
-        claimBtn.innerText = "ПЕРЕЙТИ";
-        claimBtn.onclick = () => {
-            window.open(item.url, '_blank');
-            closeModal();
-        };
+        promoBox.innerHTML = `<span style="font-size:14px; color:#999;">ID: ${item.id} | ДОСТУП РАЗРЕШЕН</span>`;
+        claimBtn.innerText = "ОТКРЫТЬ";
+        claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
     } else {
         promoBox.innerHTML = `<span>${item.code}</span>`;
         claimBtn.innerText = "КОПИРОВАТЬ";
         claimBtn.onclick = () => {
-            copyText(item.code);
-            tg.showAlert(`БОНУС ${item.id} СКОПИРОВАН`);
+            copyToClipboard(item.code);
+            tg.showAlert("СКОПИРОВАНО В БУФЕР");
             closeModal();
         };
     }
     document.getElementById('modal').classList.remove('hidden');
 }
 
-function copyText(text) {
+function copyToClipboard(text) {
     const el = document.createElement('textarea');
     el.value = text;
     document.body.appendChild(el);
@@ -119,7 +110,7 @@ function copyText(text) {
 }
 
 function saveWin(item) {
-    history.unshift({ ...item, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
+    history.unshift({ ...item, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
     localStorage.setItem('myWins', JSON.stringify(history));
     renderHistory();
 }
@@ -135,8 +126,8 @@ function renderHistory() {
 }
 
 function cancelSubscription() {
-    tg.showConfirm("Отключить автоматическое продление подписки?", (ok) => {
-        if (ok) tg.showAlert("Подписка будет деактивирована.");
+    tg.showConfirm("Отключить подписку?", (ok) => {
+        if (ok) tg.showAlert("Автопродление отключено.");
     });
 }
 
