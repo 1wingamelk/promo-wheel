@@ -27,7 +27,7 @@
             
             <section class="mission">
                 <h1>LUCKY / DATA</h1>
-                <p>Децентрализованная система распределения бонусов. Все блоки зашифрованы до активации.</p>
+                <p>Система дешифровки бонусов. Все данные анонимны до момента активации в профиле.</p>
             </section>
         </main>
 
@@ -42,11 +42,11 @@
 
     <div id="modal" class="modal hidden">
         <div class="modal-card">
-            <div class="modal-header">РЕЗУЛЬТАТ / SUCCESS</div>
+            <div class="modal-header" id="modal-type-label">РЕЗУЛЬТАТ / SUCCESS</div>
             <div class="win-content">
                 <div id="modal-icon">🎁</div>
                 <h2 id="modal-name">НАЗВАНИЕ</h2>
-                <p id="modal-desc">Описание бонуса появится здесь после завершения процесса.</p>
+                <p id="modal-desc">Загрузка деталей...</p>
                 <div class="promo-box" id="promo-box">——</div>
             </div>
             <div class="modal-actions">
@@ -66,18 +66,18 @@
                 </div>
 
                 <div class="info-group">
-                    <label>УПРАВЛЕНИЕ ПОДПИСКОЙ</label>
+                    <label>ПОДПИСКА</label>
                     <div class="sub-card">
                         <div class="sub-details">
                             <span class="sub-title">Premium Access</span>
-                            <span class="sub-date">Продление: через 3 дня</span>
+                            <span class="sub-date">Статус: Активен</span>
                         </div>
                         <button class="minimal-cancel-btn" onclick="cancelSubscription()">ОТМЕНИТЬ</button>
                     </div>
                 </div>
 
                 <div class="info-group">
-                    <label>ИСТОРИЯ ВЫИГРЫШЕЙ</label>
+                    <label>ВАШИ ВЫИГРЫШИ (НАЖМИТЕ ДЛЯ ДЕТАЛЕЙ)</label>
                     <div id="history-list" class="styled-history">
                         </div>
                 </div>
