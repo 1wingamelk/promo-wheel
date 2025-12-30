@@ -3,32 +3,52 @@ tg.expand();
 
 const tape = document.getElementById('tape');
 const spinBtn = document.getElementById('spin-btn');
+const spinsCounter = document.getElementById('spins');
 const historyList = document.getElementById('history-list');
 
-let offers = [];
-let history = JSON.parse(localStorage.getItem('myWins')) || [];
 const CARD_WIDTH = 80;
+let userState = {
+    spins: 0,
+    history: []
+};
 
+/* ---------- INIT ---------- */
 async function init() {
     try {
-        const res = await fetch('offers.json');
-        offers = await res.json();
-        renderSecretTape(150);
+        const res = await fetch('/api/init', {
+            headers: { 'Authorization': tg.initData }
+        });
+        userState = await res.json();
+
+        renderTape(150);
         resetTape();
+        updateUI();
+        renderHistory();
 
         if (tg.initDataUnsafe?.user) {
-            document.getElementById('username').innerText = (tg.initDataUnsafe.user.first_name || 'USER').toUpperCase();
+            document.getElementById('username').innerText =
+                tg.initDataUnsafe.user.first_name.toUpperCase();
         }
-        renderHistory();
-    } catch (e) { console.error("ERR_LOAD"); }
+    } catch {
+        tg.showAlert("Ошибка загрузки сервиса");
+    }
 }
 
-function renderSecretTape(count) {
+/* ---------- UI ---------- */
+function updateUI() {
+    spinsCounter.innerText = userState.spins;
+    spinBtn.disabled = userState.spins <= 0;
+    spinBtn.innerText = userState.spins > 0
+        ? "ЗАПУСТИТЬ_ПРОЦЕСС"
+        : "ПОЛУЧИТЬ_ДОСТУП (25₽)";
+}
+
+function renderTape(count) {
     tape.innerHTML = '';
     for (let i = 0; i < count; i++) {
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerText = '?';
+        card.innerText = '—';
         tape.appendChild(card);
     }
 }
@@ -36,92 +56,101 @@ function renderSecretTape(count) {
 function resetTape() {
     tape.style.transition = "none";
     const center = window.innerWidth / 2;
-    tape.style.transform = `translateX(${center - (CARD_WIDTH / 2)}px)`;
+    tape.style.transform = `translateX(${center - CARD_WIDTH / 2}px)`;
 }
 
-spinBtn.onclick = () => {
+/* ---------- SPIN ---------- */
+spinBtn.onclick = async () => {
+    if (userState.spins <= 0) {
+        return startPayment();
+    }
+
     spinBtn.disabled = true;
-    spinBtn.innerText = "ОБРАБОТКА_ДАННЫХ...";
-    resetTape();
+    spinBtn.innerText = "ОБРАБОТКА...";
 
-    setTimeout(() => {
-        const prize = offers[Math.floor(Math.random() * offers.length)];
-        const targetIdx = Math.floor(Math.random() * 20) + 110; 
+    try {
+        const res = await fetch('/api/spin', {
+            method: 'POST',
+            headers: {
+                'Authorization': tg.initData,
+                'Content-Type': 'application/json'
+            }
+        });
 
-        const center = window.innerWidth / 2;
-        const finalPos = center - (targetIdx * CARD_WIDTH) - (CARD_WIDTH / 2);
-        
-        tape.style.transition = "transform 5s cubic-bezier(0.1, 0, 0, 1)";
-        tape.style.transform = `translateX(${finalPos}px)`;
-
-        setTimeout(() => {
-            showWinModal(prize);
-            saveWin(prize);
-            spinBtn.disabled = false;
-            spinBtn.innerText = "ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)";
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }, 5300);
-    }, 50);
+        const result = await res.json();
+        animateSpin(result);
+    } catch {
+        tg.showAlert("Ошибка сервера");
+        spinBtn.disabled = false;
+    }
 };
 
-function showWinModal(item) {
+function animateSpin(prize) {
+    const targetIdx = Math.floor(Math.random() * 20) + 110;
+    const center = window.innerWidth / 2;
+    const finalPos = center - (targetIdx * CARD_WIDTH) - (CARD_WIDTH / 2);
+
+    tape.style.transition = "transform 5s cubic-bezier(0.1, 0, 0, 1)";
+    tape.style.transform = `translateX(${finalPos}px)`;
+
+    setTimeout(() => {
+        showWin(prize);
+        userState.spins--;
+        userState.history.unshift(prize);
+        updateUI();
+        renderHistory();
+        tg.HapticFeedback?.notificationOccurred('success');
+    }, 5200);
+}
+
+/* ---------- RESULT ---------- */
+function showWin(item) {
+    document.getElementById('modal-icon').innerText = item.icon;
+    document.getElementById('modal-name').innerText = item.title.toUpperCase();
+    document.getElementById('modal-desc').innerText = item.desc || '';
+
     const promoBox = document.getElementById('promo-box');
     const claimBtn = document.getElementById('claim-btn');
-    
-    document.getElementById('modal-icon').innerText = item.icon || '🎁';
-    document.getElementById('modal-name').innerText = item.title.toUpperCase();
-    document.getElementById('modal-desc').innerText = item.desc || 'Используйте этот код для получения бонуса в приложении партнера.';
 
     if (item.type === 'link') {
-        promoBox.innerText = "READY";
+        promoBox.innerText = "ДОСТУПНО";
         claimBtn.innerText = "ПЕРЕЙТИ";
-        claimBtn.onclick = () => { window.open(item.url, '_blank'); };
+        claimBtn.onclick = () => window.open(item.url, '_blank');
     } else {
         promoBox.innerText = item.code;
         claimBtn.innerText = "КОПИРОВАТЬ";
         claimBtn.onclick = () => {
-            copyText(item.code);
-            tg.showAlert("СКОПИРОВАНО В БУФЕР");
+            navigator.clipboard.writeText(item.code);
+            tg.showAlert("Скопировано");
         };
     }
+
     document.getElementById('modal').classList.remove('hidden');
 }
 
-function copyText(text) {
-    const el = document.createElement('textarea');
-    el.value = text;
-    document.body.appendChild(el); el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-}
-
-function saveWin(item) {
-    history.unshift({ ...item, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
-    localStorage.setItem('myWins', JSON.stringify(history));
-    renderHistory();
-}
-
+/* ---------- HISTORY ---------- */
 function renderHistory() {
-    if (!historyList) return;
-    historyList.innerHTML = history.length ? history.map(i => `
-        <div class="history-row">
-            <div class="h-info">
-                <span class="h-name">${i.title.toUpperCase()}</span>
-                <span class="h-time">${i.time}</span>
+    historyList.innerHTML = userState.history.length
+        ? userState.history.map(i => `
+            <div class="history-row">
+                <div class="h-info">
+                    <span class="h-name">${i.title}</span>
+                    <span class="h-time">${i.time}</span>
+                </div>
+                <span class="h-code">${i.code || 'LINK'}</span>
             </div>
-            <span class="h-code">${i.code || 'LINK'}</span>
-        </div>
-    `).join('') : '<div style="text-align:center; padding: 20px; color:#ccc; font-size:12px;">ИСТОРИЯ ПУСТА</div>';
+        `).join('')
+        : '<div style="text-align:center;color:#aaa">История пуста</div>';
 }
 
-function cancelSubscription() {
-    tg.showConfirm("Вы действительно хотите отключить автоматическое продление?", (ok) => {
-        if (ok) tg.showAlert("Автопродление будет отключено.");
-    });
+/* ---------- PAY ---------- */
+function startPayment() {
+    fetch('/api/pay', {
+        method: 'POST',
+        headers: { 'Authorization': tg.initData }
+    })
+    .then(r => r.json())
+    .then(p => tg.openInvoice(p.invoice_url));
 }
-
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-function toggleProfile() { document.getElementById('profile-modal').classList.toggle('hidden'); }
-document.getElementById('profile-trigger').onclick = toggleProfile;
 
 init();
