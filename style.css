@@ -1,14 +1,14 @@
 :root {
     --bg: #ffffff;
     --text: #000000;
-    --border: #e2e2e2;
-    --gray: #909090;
-    --font: -apple-system, system-ui, "Helvetica Neue", sans-serif;
+    --border: #eeeeee;
+    --gray: #888888;
+    --font: -apple-system, system-ui, sans-serif;
 }
 
 body {
     margin: 0; background: var(--bg); color: var(--text);
-    font-family: var(--font); overflow: hidden; letter-spacing: -0.01em;
+    font-family: var(--font); overflow: hidden;
 }
 
 .app-container {
@@ -21,9 +21,9 @@ header {
     font-size: 11px; font-weight: 700; text-transform: uppercase;
 }
 
-/* Слот-машина */
+/* Колесо */
 .machine-frame {
-    position: relative; width: 100%; height: 110px;
+    position: relative; width: 100%; height: 100px;
     border-top: 1px solid var(--text); border-bottom: 1px solid var(--text);
     margin: 40px 0; overflow: hidden;
 }
@@ -37,25 +37,22 @@ header {
 .tape { display: flex; transition: transform 5s cubic-bezier(0.15, 0, 0.05, 1); }
 
 .card {
-    min-width: 100px; height: 100px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; flex-shrink: 0;
-    border-right: 1px solid var(--border); background: #fafafa;
+    min-width: 80px; height: 80px; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; border-right: 1px solid var(--border);
+    font-size: 20px; font-weight: 900; color: #ddd; background: #fafafa;
 }
 
-.card .secret { font-size: 18px; font-weight: 900; color: #ddd; }
-.card .label { font-size: 8px; color: #ddd; margin-top: 4px; letter-spacing: 1px; }
-
-/* Тексты */
-.mission h1 { font-size: 32px; font-weight: 800; margin: 0 0 12px; }
-.mission p { font-size: 14px; color: var(--gray); line-height: 1.5; margin: 0; max-width: 85%; }
+/* Текст */
+.mission h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px; }
+.mission p { font-size: 13px; color: var(--gray); line-height: 1.5; margin: 0; }
 
 /* Кнопки */
 #spin-btn {
-    width: 100%; padding: 22px; background: var(--text); color: var(--bg);
-    border: none; font-weight: 700; font-size: 14px; text-transform: uppercase; cursor: pointer;
+    width: 100%; padding: 20px; background: var(--text); color: var(--bg);
+    border: none; font-weight: 700; font-size: 14px; text-transform: uppercase;
 }
 
-.legal-box { text-align: center; font-size: 10px; color: var(--gray); margin-top: 20px; }
+.legal-box { text-align: center; font-size: 10px; color: var(--gray); margin-top: 15px; }
 .legal-box a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--text); }
 
 /* Модалки */
@@ -65,20 +62,32 @@ header {
 }
 .hidden { display: none !important; }
 
-.modal-card, .profile-card {
-    width: 85%; max-width: 340px; border: 2px solid var(--text);
-    background: var(--bg); padding: 28px; box-sizing: border-box;
+.modal-card {
+    width: 85%; max-width: 320px; border: 2px solid var(--text);
+    background: var(--bg); padding: 25px; text-align: center;
 }
 
-.profile-card { height: 80vh; position: absolute; bottom: 0; width: 100%; max-width: none; border-left: none; border-right: none; border-bottom: none; }
+.promo-box {
+    background: #f5f5f5; padding: 15px; font-size: 20px;
+    font-weight: 800; margin-bottom: 20px; border: 1px dashed #ccc;
+}
 
-.modal-header, .p-header { display: flex; justify-content: space-between; font-weight: 800; font-size: 12px; margin-bottom: 30px; text-transform: uppercase; }
-.modal-header button, .p-header button { background: none; border: none; font-weight: 800; cursor: pointer; }
+.modal-actions { display: flex; flex-direction: column; gap: 10px; }
 
-.promo-box { font-size: 26px; font-weight: 800; margin: 40px 0; border: 1px dashed #ccc; padding: 25px; text-align: center; }
-.action-btn { width: 100%; padding: 20px; background: var(--text); color: var(--bg); border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+.action-btn {
+    padding: 15px; background: var(--text); color: var(--bg);
+    border: none; font-weight: 700; cursor: pointer;
+}
 
-.sub-status { background: #f5f5f5; padding: 15px; margin-bottom: 20px; text-align: left; font-size: 11px; }
-.sub-status button { margin-top: 10px; background: none; border: 1px solid #ccc; padding: 5px; font-size: 9px; cursor: pointer; }
+.secondary-btn {
+    padding: 10px; background: none; border: 1px solid #ccc;
+    color: #666; font-size: 12px; font-weight: 600; cursor: pointer;
+}
 
-.history-item { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; }
+/* История */
+.profile-card { width: 100%; height: 100%; padding: 25px; box-sizing: border-box; }
+.history-item {
+    display: flex; justify-content: space-between; padding: 12px 0;
+    border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.cancel-link { background: none; border: none; color: #ff4444; font-size: 10px; cursor: pointer; padding: 0; }
