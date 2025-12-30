@@ -1,0 +1,99 @@
+body {
+    background: #0f172a;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Окно прокрутки */
+.roulette-wrapper {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    background: #1e293b;
+    border: 3px solid #334155;
+    border-radius: 15px;
+    margin: 20px 0;
+    overflow: hidden; /* Прячем остальную ленту */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Центральный маркер */
+.pointer {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: #00f2ff;
+    z-index: 10;
+    box-shadow: 0 0 10px #00f2ff;
+}
+
+/* Лента с призами */
+.tape {
+    display: flex;
+    position: absolute;
+    left: 0;
+    top: 10px;
+    height: 100px;
+    transition: transform 5s cubic-bezier(0.15, 0, 0.05, 1); /* Плавное замедление */
+}
+
+.slot {
+    min-width: 100px;
+    height: 100px;
+    margin: 0 5px;
+    background: #334155;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.slot span { font-size: 30px; margin-bottom: 5px; }
+
+/* Кнопка */
+#spin-btn {
+    background: linear-gradient(45deg, #00f2ff, #0062ff);
+    border: none;
+    padding: 15px 40px;
+    color: white;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.4);
+    transition: 0.3s;
+}
+
+#spin-btn:active { transform: scale(0.95); }
+
+/* Модалка (скрыта по дефолту) */
+.hidden { display: none; }
+#result-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100;
+}
+.modal-content {
+    background: #1e293b;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid #00f2ff;
+}
