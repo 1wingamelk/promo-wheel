@@ -12,9 +12,9 @@
         <header>
             <div class="profile-btn" id="profile-trigger">
                 <span class="avatar">●</span>
-                <span id="username">ПОЛЬЗОВАТЕЛЬ / СИСТЕМА</span>
+                <span id="username">ПОЛЬЗОВАТЕЛЬ</span>
             </div>
-            <div class="status-box">ДОСТУПНО: <span id="spins">1</span></div>
+            <div class="status-box">SPINS: <span id="spins">1</span></div>
         </header>
 
         <main>
@@ -27,7 +27,7 @@
             
             <section class="mission">
                 <h1>LUCKY / DATA</h1>
-                <p>Система распределения зашифрованных бонусов. Все блоки анонимны до момента дешифровки.</p>
+                <p>Децентрализованная система распределения бонусов. Все блоки зашифрованы до активации.</p>
             </section>
         </main>
 
@@ -42,36 +42,46 @@
 
     <div id="modal" class="modal hidden">
         <div class="modal-card">
-            <div class="modal-header">
-                <span id="modal-title">РЕЗУЛЬТАТ</span>
-            </div>
-            
+            <div class="modal-header">РЕЗУЛЬТАТ / SUCCESS</div>
             <div class="win-content">
-                <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;">🎁</div>
-                <h2 id="modal-name" style="margin: 0 0 10px 0; font-size: 18px;">НАЗВАНИЕ</h2>
-                <p id="modal-desc" style="font-size: 12px; color: #666; margin-bottom: 20px;">Описание бонуса появится здесь</p>
-                
-                <div class="promo-box" id="promo-box">КОД</div>
+                <div id="modal-icon">🎁</div>
+                <h2 id="modal-name">НАЗВАНИЕ</h2>
+                <p id="modal-desc">Описание бонуса появится здесь после завершения процесса.</p>
+                <div class="promo-box" id="promo-box">——</div>
             </div>
-
             <div class="modal-actions">
                 <button id="claim-btn" class="action-btn">КОПИРОВАТЬ</button>
-                <button onclick="closeModal()" class="secondary-btn">ЗАКРЫТЬ</button>
+                <button onclick="closeModal()" class="close-text-btn">ЗАКРЫТЬ</button>
             </div>
         </div>
     </div>
 
     <div id="profile-modal" class="modal hidden">
-        <div class="profile-card">
-            <div class="p-header">
-                <h2>ЛОГИ / ВЫИГРЫШИ</h2>
-                <button onclick="toggleProfile()">[ЗАКРЫТЬ]</button>
+        <div class="profile-sheet">
+            <div class="sheet-bar"></div>
+            <div class="profile-content">
+                <div class="p-header-top">
+                    <h2>АККАУНТ</h2>
+                    <button class="circle-close" onclick="toggleProfile()">✕</button>
+                </div>
+
+                <div class="info-group">
+                    <label>УПРАВЛЕНИЕ ПОДПИСКОЙ</label>
+                    <div class="sub-card">
+                        <div class="sub-details">
+                            <span class="sub-title">Premium Access</span>
+                            <span class="sub-date">Продление: через 3 дня</span>
+                        </div>
+                        <button class="minimal-cancel-btn" onclick="cancelSubscription()">ОТМЕНИТЬ</button>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <label>ИСТОРИЯ ВЫИГРЫШЕЙ</label>
+                    <div id="history-list" class="styled-history">
+                        </div>
+                </div>
             </div>
-            <div class="sub-status">
-                <div>СТАТУС ПОДПИСКИ: <b>АКТИВЕН</b></div>
-                <button onclick="cancelSubscription()" class="cancel-link">Отключить автопродление</button>
-            </div>
-            <div id="history-list"></div>
         </div>
     </div>
 
