@@ -27,7 +27,7 @@
             
             <section class="mission">
                 <h1>LUCKY / DATA</h1>
-                <p>Алгоритм распределения зашифрованных вознаграждений. Нажмите кнопку для дешифровки.</p>
+                <p>Система распределения зашифрованных бонусов. Все блоки анонимны до момента дешифровки.</p>
             </section>
         </main>
 
@@ -43,23 +43,33 @@
     <div id="modal" class="modal hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <span id="modal-title">РЕЗУЛЬТАТ / ТЕКСТ</span>
-                <button onclick="closeModal()">[X]</button>
+                <span id="modal-title">РЕЗУЛЬТАТ</span>
             </div>
-            <div class="promo-box" id="promo-box"></div>
-            <button id="claim-btn" class="action-btn">КОПИРОВАТЬ</button>
+            
+            <div class="win-content">
+                <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;">🎁</div>
+                <h2 id="modal-name" style="margin: 0 0 10px 0; font-size: 18px;">НАЗВАНИЕ</h2>
+                <p id="modal-desc" style="font-size: 12px; color: #666; margin-bottom: 20px;">Описание бонуса появится здесь</p>
+                
+                <div class="promo-box" id="promo-box">КОД</div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="claim-btn" class="action-btn">КОПИРОВАТЬ</button>
+                <button onclick="closeModal()" class="secondary-btn">ЗАКРЫТЬ</button>
+            </div>
         </div>
     </div>
 
     <div id="profile-modal" class="modal hidden">
         <div class="profile-card">
             <div class="p-header">
-                <h2>ПРОФИЛЬ / ЛОГИ</h2>
+                <h2>ЛОГИ / ВЫИГРЫШИ</h2>
                 <button onclick="toggleProfile()">[ЗАКРЫТЬ]</button>
             </div>
             <div class="sub-status">
-                <div>СТАТУС: <b>АКТИВЕН</b></div>
-                <button onclick="cancelSubscription()">ОТКЛЮЧИТЬ ПОДПИСКУ</button>
+                <div>СТАТУС ПОДПИСКИ: <b>АКТИВЕН</b></div>
+                <button onclick="cancelSubscription()" class="cancel-link">Отключить автопродление</button>
             </div>
             <div id="history-list"></div>
         </div>
