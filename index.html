@@ -1,9 +1,60 @@
-<div id="modal" class="modal hidden">
-    <div class="modal-card">
-        <div id="modal-icon" style="font-size:50px">🎁</div>
-        <h2 id="modal-title">Победа!</h2>
-        <div class="promo-box">
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lucky Spin App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="profile-btn" id="profile-trigger">
+                <div class="avatar">👤</div>
+                <div id="username">Загрузка...</div>
             </div>
-        <button id="claim-btn" class="close-btn">ОТЛИЧНО</button>
+            <div class="balance">💎 <span id="spins">1</span> SPIN</div>
+        </header>
+
+        <main>
+            <div class="machine-frame">
+                <div class="marker">▼</div>
+                <div class="slot-window">
+                    <div class="tape" id="tape"></div>
+                </div>
+            </div>
+            <div class="info-text">
+                <h2>ЖМИ НА КНОПКУ!</h2>
+                <p>Выигрыш в каждом прокруте</p>
+            </div>
+        </main>
+
+        <footer>
+            <button id="spin-btn">КРУТИТЬ (25₽)</button>
+            <p class="legal">Подписка 25р/3 дня. <a href="#">Оферта</a></p>
+        </footer>
     </div>
-</div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-card">
+            <div id="modal-icon" style="font-size: 60px;">🎁</div>
+            <h2 id="modal-title">Победа!</h2>
+            <div class="promo-box" id="promo-box"></div>
+            <button id="claim-btn" class="main-btn">ОТЛИЧНО</button>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal hidden">
+        <div class="profile-card">
+            <div class="p-header">
+                <h2>Мои призы</h2>
+                <button onclick="toggleProfile()">✕</button>
+            </div>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
