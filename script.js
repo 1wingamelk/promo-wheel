@@ -7,23 +7,21 @@ const historyList = document.getElementById('history-list');
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
 
-// Настройки математики
 const CARD_WIDTH = 100;
-const GAP = 10;
-const FULL_STEP = CARD_WIDTH + GAP; // 110px
+const FULL_STEP = 100; // Gap 0 для минимализма
 
 async function init() {
     try {
         const res = await fetch('offers.json');
         offers = await res.json();
-        renderTape(100);
+        renderTape(120);
         resetTape();
         
         if (tg.initDataUnsafe?.user) {
-            document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
+            document.getElementById('username').innerText = (tg.initDataUnsafe.user.username || 'USER').toUpperCase();
         }
         renderHistory();
-    } catch (e) { console.error("Ошибка загрузки JSON"); }
+    } catch (e) { console.error("INIT_ERROR"); }
 }
 
 function renderTape(count) {
@@ -45,11 +43,11 @@ function resetTape() {
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    resetTape(); // Мгновенно в начало
+    spinBtn.innerText = "PROCESS_RUNNING...";
+    resetTape();
 
-    // Небольшая задержка перед мощным рывком
     setTimeout(() => {
-        const winIdx = Math.floor(Math.random() * 20) + 65; // Целимся в 65-85 карточку
+        const winIdx = Math.floor(Math.random() * 20) + 70; 
         const winner = offers[winIdx % offers.length];
         
         const center = window.innerWidth / 2;
@@ -62,6 +60,7 @@ spinBtn.onclick = () => {
             showWin(winner);
             saveWin(winner);
             spinBtn.disabled = false;
+            spinBtn.innerText = "RUN_PROCESS (25.00₽)";
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }, 4100);
     }, 50);
@@ -70,18 +69,29 @@ spinBtn.onclick = () => {
 function showWin(item) {
     const promoBox = document.getElementById('promo-box');
     const claimBtn = document.getElementById('claim-btn');
-    document.getElementById('modal-title').innerText = item.title;
+    document.getElementById('modal-title').innerText = item.title.toUpperCase();
 
     if (item.type === 'link') {
-        promoBox.innerHTML = `<span style="font-size:16px; color:#aaa;">Код не нужен</span>`;
-        claimBtn.innerText = "ПОЛУЧИТЬ ПРИЗ";
+        promoBox.innerHTML = `<span style="font-size:14px; color:#666;">REDIRECT_REQUIRED</span>`;
+        claimBtn.innerText = "OPEN_LINK";
         claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
     } else {
         promoBox.innerHTML = `<span>${item.code}</span>`;
-        claimBtn.innerText = "СКОПИРОВАТЬ И ЗАКРЫТЬ";
+        claimBtn.innerText = "COPY_AND_CLOSE";
         claimBtn.onclick = () => {
-            navigator.clipboard.writeText(item.code);
-            tg.showAlert("Промокод скопирован!");
+            // Исправленная функция копирования
+            const textToCopy = item.code;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy);
+            } else {
+                let textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+            tg.showAlert("COPIED_TO_CLIPBOARD");
             closeModal();
         };
     }
@@ -97,10 +107,8 @@ function saveWin(item) {
 function renderHistory() {
     historyList.innerHTML = history.map(i => `
         <div class="history-item">
-            <span>${i.icon} ${i.title}</span>
-            ${i.type === 'link' ? 
-                `<a href="${i.url}" target="_blank" style="color:var(--acc)">Ссылка</a>` : 
-                `<b style="color:var(--acc)">${i.code}</b>`}
+            <span>${i.icon} ${i.title.toUpperCase()}</span>
+            <span>${i.type === 'link' ? 'LINK' : i.code}</span>
         </div>
     `).join('');
 }
