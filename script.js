@@ -7,23 +7,20 @@ const historyList = document.getElementById('history-list');
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
 
+// Настройки размеров
+const CARD_WIDTH = 100;
+const GAP = 10;
+const FULL_STEP = CARD_WIDTH + GAP; // 110px
+
 async function init() {
     const res = await fetch('offers.json');
     offers = await res.json();
     
-    // Генерируем ленту (90 карточек)
-    tape.innerHTML = '';
-    for (let i = 0; i < 90; i++) {
-        const item = offers[i % offers.length];
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<span>${item.icon}</span><small>${item.title}</small>`;
-        tape.appendChild(card);
-    }
+    // Генерируем ленту (делаем её длиннее для уверенности)
+    renderTape(100);
 
-    // Центрируем первую карточку
-    const offset = (window.innerWidth / 2) - 50;
-    tape.style.transform = `translateX(${offset}px)`;
+    // Центрируем первую карточку в самом начале
+    resetTapePosition();
 
     if (tg.initDataUnsafe?.user) {
         document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
@@ -31,23 +28,53 @@ async function init() {
     renderHistory();
 }
 
+function renderTape(count) {
+    tape.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const item = offers[i % offers.length];
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<span>${item.icon}</span><small>${item.title}</small>`;
+        tape.appendChild(card);
+    }
+}
+
+function resetTapePosition() {
+    // Убираем анимацию, чтобы возврат был мгновенным
+    tape.style.transition = "none";
+    const startOffset = (window.innerWidth / 2) - (CARD_WIDTH / 2);
+    tape.style.transform = `translateX(${startOffset}px)`;
+}
+
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    const winIdx = Math.floor(Math.random() * 20) + 60; // Выбираем карточку в конце
-    const winner = offers[winIdx % offers.length];
     
-    // МАТЕМАТИКА ЦЕНТРИРОВАНИЯ
-    const cardWidth = 110; // 100px + 10px gap
-    const finalPos = (window.innerWidth / 2) - (winIdx * cardWidth) - 50;
-    
-    tape.style.transform = `translateX(${finalPos}px)`;
+    // 1. Мгновенный сброс в начало перед круткой
+    resetTapePosition();
 
+    // Маленькая задержка, чтобы браузер успел "понять", что мы в начале, 
+    // прежде чем включать анимацию прокрутки
     setTimeout(() => {
-        showWin(winner);
-        saveWin(winner);
-        spinBtn.disabled = false;
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-    }, 4100);
+        // Выбираем случайный индекс подальше (между 60 и 85 карточкой)
+        const winIdx = Math.floor(Math.random() * 25) + 60; 
+        const winner = offers[winIdx % offers.length];
+        
+        // Математика точного центра
+        const centerScreen = window.innerWidth / 2;
+        const targetPos = centerScreen - (winIdx * FULL_STEP) - (CARD_WIDTH / 2);
+        
+        // Включаем анимацию прокрутки
+        tape.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.05, 1)";
+        tape.style.transform = `translateX(${targetPos}px)`;
+
+        // Звук/Вибрация в конце
+        setTimeout(() => {
+            showWin(winner);
+            saveWin(winner);
+            spinBtn.disabled = false;
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }, 4100);
+    }, 50); // Короткая пауза 50мс
 };
 
 function showWin(item) {
@@ -63,10 +90,11 @@ function saveWin(item) {
 }
 
 function renderHistory() {
+    if (!historyList) return;
     historyList.innerHTML = history.map(i => `
-        <div style="background:#0f172a; padding:10px; margin-bottom:5px; border-radius:5px; display:flex; justify-content:space-between">
+        <div style="background:#0f172a; padding:10px; margin-bottom:5px; border-radius:5px; display:flex; justify-content:space-between; font-size: 12px;">
             <span>${i.icon} ${i.title}</span>
-            <code style="color:#06b6d4">${i.code}</code>
+            <code style="color:#06b6d4; font-weight:bold;">${i.code}</code>
         </div>
     `).join('');
 }
