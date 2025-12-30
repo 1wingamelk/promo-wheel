@@ -7,22 +7,22 @@ const historyList = document.getElementById('history-list');
 
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
-const CARD_WIDTH = 100;
+const CARD_WIDTH = 80; // Соответствует CSS
 
 async function init() {
     try {
         const res = await fetch('offers.json');
         offers = await res.json();
         
+        // Рендерим пустые блоки с вопросами
         renderSecretTape(150);
         resetTape();
 
         if (tg.initDataUnsafe?.user) {
-            const name = tg.initDataUnsafe.user.first_name || 'USER';
-            document.getElementById('username').innerText = name.toUpperCase() + ' / СИСТЕМА';
+            document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name.toUpperCase() + ' / СИСТЕМА';
         }
         renderHistory();
-    } catch (e) { console.error("LOAD_ERROR"); }
+    } catch (e) { console.error("ERR_INIT"); }
 }
 
 function renderSecretTape(count) {
@@ -30,8 +30,7 @@ function renderSecretTape(count) {
     for (let i = 0; i < count; i++) {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.width = CARD_WIDTH + 'px';
-        card.innerHTML = `<div class="secret">[ ? ]</div><div class="label">DATA_BLOCK</div>`;
+        card.innerText = '?';
         tape.appendChild(card);
     }
 }
@@ -44,25 +43,15 @@ function resetTape() {
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    spinBtn.innerText = "ДЕШИФРОВКА...";
+    spinBtn.innerText = "ОБРАБОТКА_ДАННЫХ...";
     resetTape();
 
     setTimeout(() => {
-        // 1. Выбираем рандомный бонус
+        // Выбираем приз и позицию
         const prize = offers[Math.floor(Math.random() * offers.length)];
-        
-        // 2. Выбираем случайную карточку в конце ленты
         const targetIdx = Math.floor(Math.random() * 20) + 110; 
-        
-        // 3. "Проявляем" приз на этой карточке
-        const targetCard = tape.children[targetIdx];
-        targetCard.innerHTML = `
-            <span style="font-size: 28px;">${prize.icon}</span>
-            <small style="font-size: 9px; font-weight: 800; margin-top: 5px; text-transform: uppercase;">${prize.title}</small>
-        `;
-        targetCard.style.background = "#fff";
 
-        // 4. Считаем позицию остановки
+        // Центрируем
         const center = window.innerWidth / 2;
         const finalPos = center - (targetIdx * CARD_WIDTH) - (CARD_WIDTH / 2);
         
@@ -82,31 +71,29 @@ spinBtn.onclick = () => {
 function showWinModal(item) {
     const promoBox = document.getElementById('promo-box');
     const claimBtn = document.getElementById('claim-btn');
-    document.getElementById('modal-title').innerText = item.title.toUpperCase();
+    
+    document.getElementById('modal-icon').innerText = item.icon || '🎁';
+    document.getElementById('modal-name').innerText = item.title.toUpperCase();
+    document.getElementById('modal-desc').innerText = item.desc || 'Активируйте бонус в личном кабинете партнера.';
 
     if (item.type === 'link') {
-        promoBox.innerHTML = `<span style="font-size:14px; color:#999;">ID: ${item.id} | ДОСТУП РАЗРЕШЕН</span>`;
-        claimBtn.innerText = "ОТКРЫТЬ";
-        claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
+        promoBox.innerText = "ССЫЛКА ГОТОВА";
+        claimBtn.innerText = "ПЕРЕЙТИ";
+        claimBtn.onclick = () => { window.open(item.url, '_blank'); };
     } else {
-        promoBox.innerHTML = `<span>${item.code}</span>`;
+        promoBox.innerText = item.code;
         claimBtn.innerText = "КОПИРОВАТЬ";
         claimBtn.onclick = () => {
-            copyToClipboard(item.code);
-            tg.showAlert("СКОПИРОВАНО В БУФЕР");
-            closeModal();
+            const el = document.createElement('textarea');
+            el.value = item.code;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            tg.showAlert("СКОПИРОВАНО");
         };
     }
     document.getElementById('modal').classList.remove('hidden');
-}
-
-function copyToClipboard(text) {
-    const el = document.createElement('textarea');
-    el.value = text;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
 }
 
 function saveWin(item) {
@@ -119,15 +106,15 @@ function renderHistory() {
     if (!historyList) return;
     historyList.innerHTML = history.map(i => `
         <div class="history-item">
-            <span>[ID:${i.id}] ${i.title.toUpperCase()}</span>
-            <span style="color:#888">${i.type === 'link' ? 'LINK' : i.code}</span>
+            <span>${i.title.toUpperCase()}</span>
+            <span style="color:#999">${i.code || 'ССЫЛКА'}</span>
         </div>
     `).join('');
 }
 
 function cancelSubscription() {
     tg.showConfirm("Отключить подписку?", (ok) => {
-        if (ok) tg.showAlert("Автопродление отключено.");
+        if (ok) tg.showAlert("Подписка отключена.");
     });
 }
 
