@@ -7,19 +7,23 @@ const historyList = document.getElementById('history-list');
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
 
+// Настройки математики
 const CARD_WIDTH = 100;
 const GAP = 10;
-const FULL_STEP = CARD_WIDTH + GAP;
+const FULL_STEP = CARD_WIDTH + GAP; // 110px
 
 async function init() {
-    const res = await fetch('offers.json');
-    offers = await res.json();
-    renderTape(100);
-    resetTapePosition();
-    if (tg.initDataUnsafe?.user) {
-        document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
-    }
-    renderHistory();
+    try {
+        const res = await fetch('offers.json');
+        offers = await res.json();
+        renderTape(100);
+        resetTape();
+        
+        if (tg.initDataUnsafe?.user) {
+            document.getElementById('username').innerText = tg.initDataUnsafe.user.first_name;
+        }
+        renderHistory();
+    } catch (e) { console.error("Ошибка загрузки JSON"); }
 }
 
 function renderTape(count) {
@@ -33,21 +37,23 @@ function renderTape(count) {
     }
 }
 
-function resetTapePosition() {
+function resetTape() {
     tape.style.transition = "none";
-    const startOffset = (window.innerWidth / 2) - (CARD_WIDTH / 2);
-    tape.style.transform = `translateX(${startOffset}px)`;
+    const center = window.innerWidth / 2;
+    tape.style.transform = `translateX(${center - (CARD_WIDTH / 2)}px)`;
 }
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    resetTapePosition();
+    resetTape(); // Мгновенно в начало
 
+    // Небольшая задержка перед мощным рывком
     setTimeout(() => {
-        const winIdx = Math.floor(Math.random() * 25) + 60; 
+        const winIdx = Math.floor(Math.random() * 20) + 65; // Целимся в 65-85 карточку
         const winner = offers[winIdx % offers.length];
-        const centerScreen = window.innerWidth / 2;
-        const targetPos = centerScreen - (winIdx * FULL_STEP) - (CARD_WIDTH / 2);
+        
+        const center = window.innerWidth / 2;
+        const targetPos = center - (winIdx * FULL_STEP) - (CARD_WIDTH / 2);
         
         tape.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.05, 1)";
         tape.style.transform = `translateX(${targetPos}px)`;
@@ -61,55 +67,42 @@ spinBtn.onclick = () => {
     }, 50);
 };
 
-// --- НОВАЯ ЛОГИКА МОДАЛКИ ---
 function showWin(item) {
+    const promoBox = document.getElementById('promo-box');
+    const claimBtn = document.getElementById('claim-btn');
     document.getElementById('modal-title').innerText = item.title;
-    const promoBox = document.querySelector('.promo-box');
-    const claimBtn = document.getElementById('claim-btn'); // Добавь этот ID кнопке "Закрыть" в HTML
 
-    if (item.type === 'link' || !item.code) {
-        // Если это ссылка
-        promoBox.innerHTML = `<span style="font-size:14px; color:#aaa">Промокод не требуется</span>`;
-        document.getElementById('claim-btn').innerText = "ПЕРЕЙТИ И ПОЛУЧИТЬ";
-        document.getElementById('claim-btn').onclick = () => {
-            window.open(item.url, '_blank');
+    if (item.type === 'link') {
+        promoBox.innerHTML = `<span style="font-size:16px; color:#aaa;">Код не нужен</span>`;
+        claimBtn.innerText = "ПОЛУЧИТЬ ПРИЗ";
+        claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
+    } else {
+        promoBox.innerHTML = `<span>${item.code}</span>`;
+        claimBtn.innerText = "СКОПИРОВАТЬ И ЗАКРЫТЬ";
+        claimBtn.onclick = () => {
+            navigator.clipboard.writeText(item.code);
+            tg.showAlert("Промокод скопирован!");
             closeModal();
         };
-    } else {
-        // Если это промокод
-        promoBox.innerHTML = `<span id="modal-code">${item.code}</span><button id="copy-btn" onclick="copyCode('${item.code}')">📋</button>`;
-        document.getElementById('claim-btn').innerText = "ОТЛИЧНО";
-        document.getElementById('claim-btn').onclick = closeModal;
     }
-    
     document.getElementById('modal').classList.remove('hidden');
 }
 
-function copyCode(code) {
-    navigator.clipboard.writeText(code);
-    tg.showAlert("Промокод скопирован!");
-}
-
 function saveWin(item) {
-    history.unshift({ ...item, date: new Date().toLocaleDateString() });
+    history.unshift({ ...item, date: new Date().toLocaleTimeString() });
     localStorage.setItem('myWins', JSON.stringify(history));
     renderHistory();
 }
 
-// --- НОВАЯ ЛОГИКА ИСТОРИИ ---
 function renderHistory() {
-    if (!historyList) return;
-    historyList.innerHTML = history.map(i => {
-        const actionLabel = (i.type === 'link' || !i.code) ? 
-            `<a href="${i.url}" target="_blank" style="color:#06b6d4; text-decoration:none;">Перейти 🔗</a>` : 
-            `<code style="color:#06b6d4;">${i.code}</code>`;
-
-        return `
-        <div style="background:#0f172a; padding:10px; margin-bottom:5px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; font-size: 12px;">
+    historyList.innerHTML = history.map(i => `
+        <div class="history-item">
             <span>${i.icon} ${i.title}</span>
-            ${actionLabel}
-        </div>`;
-    }).join('');
+            ${i.type === 'link' ? 
+                `<a href="${i.url}" target="_blank" style="color:var(--acc)">Ссылка</a>` : 
+                `<b style="color:var(--acc)">${i.code}</b>`}
+        </div>
+    `).join('');
 }
 
 function closeModal() { document.getElementById('modal').classList.add('hidden'); }
