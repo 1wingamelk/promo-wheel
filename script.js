@@ -4,25 +4,27 @@ tg.expand();
 const tape = document.getElementById('tape');
 const spinBtn = document.getElementById('spin-btn');
 const historyList = document.getElementById('history-list');
+
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
 
 const CARD_WIDTH = 100;
-const FULL_STEP = 100; 
 
 async function init() {
     try {
         const res = await fetch('offers.json');
         offers = await res.json();
-        renderTape(120);
-        resetTape();
         
+        // Создаем длинную ленту
+        renderTape(150);
+        resetTape();
+
         if (tg.initDataUnsafe?.user) {
             const name = tg.initDataUnsafe.user.first_name || 'USER';
             document.getElementById('username').innerText = name.toUpperCase() + ' / СИСТЕМА';
         }
         renderHistory();
-    } catch (e) { console.error("ОШИБКА_ИНИЦИАЛИЗАЦИИ"); }
+    } catch (e) { console.error("INIT_ERROR"); }
 }
 
 function renderTape(count) {
@@ -44,80 +46,63 @@ function resetTape() {
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    spinBtn.innerText = "ПРОЦЕСС_ЗАПУЩЕН...";
+    spinBtn.innerText = "ОБРАБОТКА_ДАННЫХ...";
     resetTape();
 
     setTimeout(() => {
-        const winIdx = Math.floor(Math.random() * 20) + 70; 
+        // Определяем победителя ОДИН РАЗ перед анимацией
+        const winIdx = Math.floor(Math.random() * 30) + 85; 
         const winner = offers[winIdx % offers.length];
         
         const center = window.innerWidth / 2;
-        const targetPos = center - (winIdx * FULL_STEP) - (CARD_WIDTH / 2);
+        const targetPos = center - (winIdx * CARD_WIDTH) - (CARD_WIDTH / 2);
         
-        tape.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.05, 1)";
+        tape.style.transition = "transform 4.5s cubic-bezier(0.15, 0, 0.05, 1)";
         tape.style.transform = `translateX(${targetPos}px)`;
 
+        // Используем того же winner, который остановился под чертой
         setTimeout(() => {
-            showWin(winner);
+            showWinModal(winner);
             saveWin(winner);
             spinBtn.disabled = false;
             spinBtn.innerText = "ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)";
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }, 4100);
+        }, 4700);
     }, 50);
 };
 
-function showWin(item) {
+function showWinModal(item) {
     const promoBox = document.getElementById('promo-box');
     const claimBtn = document.getElementById('claim-btn');
     document.getElementById('modal-title').innerText = item.title.toUpperCase();
 
     if (item.type === 'link') {
-        promoBox.innerHTML = `<span style="font-size:14px; color:#666;">ТРЕБУЕТСЯ_ПЕРЕХОД</span>`;
-        claimBtn.innerText = "ОТКРЫТЬ_ССЫЛКУ";
-        claimBtn.onclick = function() {
-            window.open(item.url, '_blank');
-            closeModal();
-        };
+        promoBox.innerHTML = `<span style="font-size:14px; color:#999;">КОД НЕ ТРЕБУЕТСЯ</span>`;
+        claimBtn.innerText = "ПЕРЕЙТИ";
+        claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
     } else {
         promoBox.innerHTML = `<span>${item.code}</span>`;
-        claimBtn.innerText = "КОПИРОВАТЬ_И_ЗАКРЫТЬ";
-        
-        // Четкая логика: Копируем -> Уведомляем -> Закрываем
-        claimBtn.onclick = function() {
-            const textToCopy = item.code;
-            copyToClipboard(textToCopy);
-            tg.showAlert("СКОПИРОВАНО В БУФЕР ОБМЕНА");
-            closeModal(); // Закрытие окна
+        claimBtn.innerText = "КОПИРОВАТЬ";
+        claimBtn.onclick = () => {
+            copyText(item.code);
+            tg.showAlert("СКОПИРОВАНО");
+            closeModal();
         };
     }
     document.getElementById('modal').classList.remove('hidden');
 }
 
-// Универсальная функция копирования
-function copyToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text);
-    } else {
-        let textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-9999px";
-        textArea.style.top = "0";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-        } catch (err) {
-            console.error('Ошибка копирования', err);
-        }
-        document.body.removeChild(textArea);
-    }
+function copyText(text) {
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
 }
 
 function saveWin(item) {
-    history.unshift({ ...item, date: new Date().toLocaleTimeString() });
+    history.unshift({ ...item, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
     localStorage.setItem('myWins', JSON.stringify(history));
     renderHistory();
 }
@@ -126,19 +111,19 @@ function renderHistory() {
     historyList.innerHTML = history.map(i => `
         <div class="history-item">
             <span>${i.icon} ${i.title.toUpperCase()}</span>
-            <span>${i.type === 'link' ? 'ССЫЛКА' : i.code}</span>
+            <span style="color:#888">${i.type === 'link' ? 'LINK' : i.code}</span>
         </div>
     `).join('');
 }
 
-function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
+function cancelSubscription() {
+    tg.showConfirm("Отключить автоматическое продление подписки?", (ok) => {
+        if (ok) tg.showAlert("Подписка будет деактивирована.");
+    });
 }
 
-function toggleProfile() {
-    document.getElementById('profile-modal').classList.toggle('hidden');
-}
-
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+function toggleProfile() { document.getElementById('profile-modal').classList.toggle('hidden'); }
 document.getElementById('profile-trigger').onclick = toggleProfile;
 
 init();
