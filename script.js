@@ -8,14 +8,15 @@ const historyList = document.getElementById('history-list');
 let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
 
-const CARD_WIDTH = 100;
+// КОНСТАНТЫ РАЗМЕРОВ (должны быть точными)
+const CARD_WIDTH = 100; // Ширина из CSS
 
 async function init() {
     try {
         const res = await fetch('offers.json');
         offers = await res.json();
         
-        // Создаем длинную ленту
+        // Генерируем ленту
         renderTape(150);
         resetTape();
 
@@ -24,7 +25,7 @@ async function init() {
             document.getElementById('username').innerText = name.toUpperCase() + ' / СИСТЕМА';
         }
         renderHistory();
-    } catch (e) { console.error("INIT_ERROR"); }
+    } catch (e) { console.error("ОШИБКА_ИНИЦИАЛИЗАЦИИ"); }
 }
 
 function renderTape(count) {
@@ -33,6 +34,8 @@ function renderTape(count) {
         const item = offers[i % offers.length];
         const card = document.createElement('div');
         card.className = 'card';
+        // Убеждаемся, что размеры жестко заданы
+        card.style.width = CARD_WIDTH + 'px';
         card.innerHTML = `<span>${item.icon}</span><small>${item.title}</small>`;
         tape.appendChild(card);
     }
@@ -40,34 +43,42 @@ function renderTape(count) {
 
 function resetTape() {
     tape.style.transition = "none";
-    const center = window.innerWidth / 2;
-    tape.style.transform = `translateX(${center - (CARD_WIDTH / 2)}px)`;
+    // Ставим 0-ю карточку ровно по центру
+    const centerShift = window.innerWidth / 2 - (CARD_WIDTH / 2);
+    tape.style.transform = `translateX(${centerShift}px)`;
 }
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
     spinBtn.innerText = "ОБРАБОТКА_ДАННЫХ...";
+    
+    // Мгновенный сброс перед началом
     resetTape();
 
     setTimeout(() => {
-        // Определяем победителя ОДИН РАЗ перед анимацией
-        const winIdx = Math.floor(Math.random() * 30) + 85; 
-        const winner = offers[winIdx % offers.length];
+        // 1. ВЫБИРАЕМ КАРТОЧКУ (например, между 80 и 100)
+        const targetCardIndex = Math.floor(Math.random() * 20) + 80; 
         
-        const center = window.innerWidth / 2;
-        const targetPos = center - (winIdx * CARD_WIDTH) - (CARD_WIDTH / 2);
+        // 2. ОПРЕДЕЛЯЕМ ОБЪЕКТ ПРИЗА СРАЗУ
+        const winningPrize = offers[targetCardIndex % offers.length];
         
-        tape.style.transition = "transform 4.5s cubic-bezier(0.15, 0, 0.05, 1)";
-        tape.style.transform = `translateX(${targetPos}px)`;
+        // 3. СЧИТАЕМ ТОЧНУЮ ПОЗИЦИЮ
+        // Центр экрана минус (ширина всех карточек до целевой) минус (половина целевой карточки)
+        const centerOffset = window.innerWidth / 2;
+        const finalPosition = centerOffset - (targetCardIndex * CARD_WIDTH) - (CARD_WIDTH / 2);
+        
+        // 4. ЗАПУСКАЕМ АНИМАЦИЮ
+        tape.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.05, 1)";
+        tape.style.transform = `translateX(${finalPosition}px)`;
 
-        // Используем того же winner, который остановился под чертой
+        // 5. ВЫДАЕМ ИМЕННО ЭТОТ ПРИЗ
         setTimeout(() => {
-            showWinModal(winner);
-            saveWin(winner);
+            showWinModal(winningPrize);
+            saveWin(winningPrize);
             spinBtn.disabled = false;
             spinBtn.innerText = "ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)";
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }, 4700);
+        }, 5200); // Чуть дольше анимации
     }, 50);
 };
 
@@ -79,14 +90,17 @@ function showWinModal(item) {
     if (item.type === 'link') {
         promoBox.innerHTML = `<span style="font-size:14px; color:#999;">КОД НЕ ТРЕБУЕТСЯ</span>`;
         claimBtn.innerText = "ПЕРЕЙТИ";
-        claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
+        claimBtn.onclick = () => {
+            window.open(item.url, '_blank');
+            closeModal();
+        };
     } else {
         promoBox.innerHTML = `<span>${item.code}</span>`;
         claimBtn.innerText = "КОПИРОВАТЬ";
         claimBtn.onclick = () => {
             copyText(item.code);
             tg.showAlert("СКОПИРОВАНО");
-            closeModal();
+            closeModal(); // Сразу закрываем
         };
     }
     document.getElementById('modal').classList.remove('hidden');
@@ -95,6 +109,8 @@ function showWinModal(item) {
 function copyText(text) {
     const el = document.createElement('textarea');
     el.value = text;
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
     document.body.appendChild(el);
     el.select();
     document.execCommand('copy');
@@ -108,6 +124,7 @@ function saveWin(item) {
 }
 
 function renderHistory() {
+    if (!historyList) return;
     historyList.innerHTML = history.map(i => `
         <div class="history-item">
             <span>${i.icon} ${i.title.toUpperCase()}</span>
@@ -122,8 +139,14 @@ function cancelSubscription() {
     });
 }
 
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-function toggleProfile() { document.getElementById('profile-modal').classList.toggle('hidden'); }
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+
+function toggleProfile() {
+    document.getElementById('profile-modal').classList.toggle('hidden');
+}
+
 document.getElementById('profile-trigger').onclick = toggleProfile;
 
 init();
