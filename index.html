@@ -1,15 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lucky Drop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
 <body>
-    <div class="game-container">
-        <h2 style="margin-bottom: 5px;">LUCKY SPIN</h2>
-        <p style="color: #94a3b8; font-size: 14px;">Твой ежедневный бонус</p>
-        
-        <div class="roulette-wrapper">
-            <div class="pointer"></div>
-            <div class="tape" id="tape">
-                </div>
-        </div>
 
-        <button id="spin-btn">ИСПЫТАТЬ УДАЧУ — 25₽</button>
+    <div class="app-container">
+        <header>
+            <div class="user-info">
+                <span id="username">Guest</span>
+            </div>
+            <div class="balance-box">
+                <span class="coin-icon">💎</span>
+                <span id="spins-left">1</span> SPIN
+            </div>
+        </header>
+
+        <main>
+            <div class="slot-machine-frame">
+                <div class="pointer-top">▼</div>
+                <div class="slot-window">
+                    <div class="tape" id="tape">
+                        </div>
+                </div>
+                <div class="pointer-bottom">▲</div>
+                <div class="shine-effect"></div>
+            </div>
+
+            <div class="info-text">
+                <h3>ВЫИГРЫВАЙ КАЖДЫЙ ДЕНЬ</h3>
+                <p>Гарантированные призы от партнеров</p>
+            </div>
+        </main>
+
+        <footer>
+            <button id="spin-btn" class="main-btn">
+                <span class="btn-text">КРУТИТЬ</span>
+                <span class="btn-sub">Цена: 25₽</span>
+            </button>
+            <p class="legal">Нажимая кнопку, вы оформляете подписку (оферта)</p>
+        </footer>
     </div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-icon" id="modal-icon">🎁</div>
+            <h2 id="modal-title">Приз!</h2>
+            <p id="modal-desc">Описание</p>
+            
+            <div class="promo-box">
+                <span id="modal-code">CODE123</span>
+                <button id="copy-btn" class="icon-btn">📋</button>
+            </div>
+
+            <button id="claim-btn" class="action-btn">ЗАБРАТЬ</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
+</html>
