@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucky Drop / Functional</title>
+    <title>Lucky Drop / System</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,9 +12,9 @@
         <header>
             <div class="profile-btn" id="profile-trigger">
                 <span class="avatar">●</span>
-                <span id="username">ПОЛЬЗОВАТЕЛЬ</span>
+                <span id="username">ПОЛЬЗОВАТЕЛЬ / СИСТЕМА</span>
             </div>
-            <div class="status-box">ПОПЫТКИ: <span id="spins">1</span></div>
+            <div class="status-box">ДОСТУПНО: <span id="spins">1</span></div>
         </header>
 
         <main>
@@ -26,16 +26,16 @@
             </div>
             
             <section class="mission">
-                <h1>УДАЧА / ВЫБОР</h1>
-                <p>Минималистичный сервис распределения цифровых активов и вознаграждений.</p>
+                <h1>LUCKY / DATA</h1>
+                <p>Алгоритм распределения зашифрованных вознаграждений. Нажмите кнопку для дешифровки.</p>
             </section>
         </main>
 
         <footer>
-            <button id="spin-btn">ЗАПУСТИТЬ ПРОЦЕСС (25.00₽)</button>
+            <button id="spin-btn">ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)</button>
             <div class="legal-box">
                 <p>ПОДПИСКА: 25₽ / 3 ДНЯ</p>
-                <a href="#">ПУБЛИЧНАЯ ОФЕРТА</a>
+                <a href="#">ПУБЛИЧНАЯ_ОФЕРТА</a>
             </div>
         </footer>
     </div>
@@ -43,7 +43,7 @@
     <div id="modal" class="modal hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <span id="modal-title">ВЫИГРЫШ</span>
+                <span id="modal-title">РЕЗУЛЬТАТ / ТЕКСТ</span>
                 <button onclick="closeModal()">[X]</button>
             </div>
             <div class="promo-box" id="promo-box"></div>
@@ -54,12 +54,12 @@
     <div id="profile-modal" class="modal hidden">
         <div class="profile-card">
             <div class="p-header">
-                <h2>ПРОФИЛЬ / ИСТОРИЯ</h2>
+                <h2>ПРОФИЛЬ / ЛОГИ</h2>
                 <button onclick="toggleProfile()">[ЗАКРЫТЬ]</button>
             </div>
-            <div class="sub-management">
-                <div class="sub-info">СТАТУС: <b>АКТИВЕН</b></div>
-                <button class="cancel-sub" onclick="cancelSubscription()">Отключить подписку</button>
+            <div class="sub-status">
+                <div>СТАТУС: <b>АКТИВЕН</b></div>
+                <button onclick="cancelSubscription()">ОТКЛЮЧИТЬ ПОДПИСКУ</button>
             </div>
             <div id="history-list"></div>
         </div>
