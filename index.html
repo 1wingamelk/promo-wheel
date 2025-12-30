@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Колесо Фортуны</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Испытай удачу!</h1>
+        <div class="wheel-box">
+            <canvas id="wheel" width="400" height="400"></canvas>
+            <div id="pointer">▼</div>
+        </div>
+        <button id="spin-btn">КРУТИТЬ (25₽)</button>
+        <div id="result-modal" class="hidden">
+            <div class="modal-content">
+                <h2>Ваш приз:</h2>
+                <p id="prize-text"></p>
+                <a id="prize-link" href="#" target="_blank">Получить</a>
+                <button onclick="closeModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
