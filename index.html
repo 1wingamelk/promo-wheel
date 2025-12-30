@@ -3,62 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucky Drop</title>
+    <title>Lucky Spin</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <div class="app-container">
         <header>
-            <div class="user-info">
-                <span id="username">Guest</span>
+            <div class="profile-btn" id="profile-trigger">
+                <div class="avatar">👤</div>
+                <div id="username">User</div>
             </div>
-            <div class="balance-box">
-                <span class="coin-icon">💎</span>
-                <span id="spins-left">1</span> SPIN
-            </div>
+            <div class="balance">💎 <span id="spins">1</span></div>
         </header>
 
         <main>
-            <div class="slot-machine-frame">
-                <div class="pointer-top">▼</div>
+            <div class="machine-frame">
+                <div class="marker">▼</div>
                 <div class="slot-window">
-                    <div class="tape" id="tape">
-                        </div>
+                    <div class="tape" id="tape"></div>
                 </div>
-                <div class="pointer-bottom">▲</div>
-                <div class="shine-effect"></div>
-            </div>
-
-            <div class="info-text">
-                <h3>ВЫИГРЫВАЙ КАЖДЫЙ ДЕНЬ</h3>
-                <p>Гарантированные призы от партнеров</p>
             </div>
         </main>
 
         <footer>
-            <button id="spin-btn" class="main-btn">
-                <span class="btn-text">КРУТИТЬ</span>
-                <span class="btn-sub">Цена: 25₽</span>
-            </button>
-            <p class="legal">Нажимая кнопку, вы оформляете подписку (оферта)</p>
+            <button id="spin-btn">КРУТИТЬ (25₽)</button>
+            <p class="legal">Подписка: 25р / 3 дня. <a href="#">Оферта</a></p>
         </footer>
     </div>
 
     <div id="modal" class="modal hidden">
         <div class="modal-card">
-            <div class="modal-icon" id="modal-icon">🎁</div>
-            <h2 id="modal-title">Приз!</h2>
-            <p id="modal-desc">Описание</p>
-            
+            <div id="modal-icon">🎁</div>
+            <h2 id="modal-title">Победа!</h2>
             <div class="promo-box">
-                <span id="modal-code">CODE123</span>
-                <button id="copy-btn" class="icon-btn">📋</button>
+                <span id="modal-code">---</span>
+                <button id="copy-btn">📋</button>
             </div>
+            <button onclick="closeModal()" class="close-btn">ЗАКРЫТЬ</button>
+        </div>
+    </div>
 
-            <button id="claim-btn" class="action-btn">ЗАБРАТЬ</button>
+    <div id="profile-modal" class="modal hidden">
+        <div class="profile-card">
+            <div class="p-header"><h2>Профиль</h2><button onclick="toggleProfile()">✕</button></div>
+            <div class="sub-info">
+                <p>Статус: <span style="color:#22c55e">АКТИВНА</span></p>
+                <p>Списание: 03.01.2025</p>
+                <button class="cancel-btn">Отменить подписку</button>
+            </div>
+            <h3>История выигрышей:</h3>
+            <div id="history-list"></div>
         </div>
     </div>
 
