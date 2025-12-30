@@ -1,99 +1,179 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --accent: #06b6d4;
+    --accent-glow: rgba(6, 182, 212, 0.5);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
 body {
-    background: #0f172a;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
 }
 
-.game-container {
+.app-container {
     width: 100%;
-    max-width: 400px;
-    text-align: center;
+    max-width: 450px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    background: radial-gradient(circle at top, #1e293b 0%, #0f172a 70%);
 }
 
-/* Окно прокрутки */
-.roulette-wrapper {
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.balance-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Slot Machine */
+.slot-machine-frame {
     position: relative;
     width: 100%;
-    height: 120px;
-    background: #1e293b;
-    border: 3px solid #334155;
-    border-radius: 15px;
+    height: 140px;
+    background: #000;
+    border: 2px solid #334155;
+    border-radius: 16px;
     margin: 20px 0;
-    overflow: hidden; /* Прячем остальную ленту */
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 20px #000;
 }
 
-/* Центральный маркер */
-.pointer {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
+.slot-window {
     height: 100%;
-    background: #00f2ff;
-    z-index: 10;
-    box-shadow: 0 0 10px #00f2ff;
+    display: flex;
+    align-items: center;
 }
 
-/* Лента с призами */
 .tape {
     display: flex;
-    position: absolute;
-    left: 0;
-    top: 10px;
-    height: 100px;
-    transition: transform 5s cubic-bezier(0.15, 0, 0.05, 1); /* Плавное замедление */
+    gap: 10px;
+    padding-left: 50vw; /* Центровка старта */
+    will-change: transform; /* Оптимизация анимации */
 }
 
-.slot {
+.card {
     min-width: 100px;
     height: 100px;
-    margin: 0 5px;
-    background: #334155;
-    border-radius: 10px;
+    background: var(--card-bg);
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 12px;
-    font-weight: bold;
+    border-bottom: 4px solid var(--accent);
+    position: relative;
 }
 
-.slot span { font-size: 30px; margin-bottom: 5px; }
+.card-icon { font-size: 32px; margin-bottom: 5px; }
+.card-title { font-size: 10px; font-weight: 700; max-width: 90%; text-align: center; }
+
+/* Указатели */
+.pointer-top, .pointer-bottom {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--accent);
+    font-size: 12px;
+    z-index: 10;
+    text-shadow: 0 0 10px var(--accent);
+}
+.pointer-top { top: 5px; }
+.pointer-bottom { bottom: 5px; }
+
+/* Декор */
+.shine-effect {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none;
+    z-index: 5;
+}
+
+.info-text { text-align: center; }
+.info-text h3 { margin: 0; font-weight: 900; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; }
+.info-text p { margin: 5px 0 0; font-size: 13px; color: var(--text-muted); }
 
 /* Кнопка */
-#spin-btn {
-    background: linear-gradient(45deg, #00f2ff, #0062ff);
+.main-btn {
+    width: 100%;
     border: none;
-    padding: 15px 40px;
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    padding: 18px;
+    border-radius: 16px;
     color: white;
-    font-weight: bold;
-    border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.4);
-    transition: 0.3s;
+    box-shadow: 0 10px 25px -5px var(--accent-glow);
+    transition: transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
 }
 
-#spin-btn:active { transform: scale(0.95); }
+.main-btn:active { transform: scale(0.98); }
+.btn-text { font-weight: 900; font-size: 18px; letter-spacing: 1px; }
+.btn-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+.legal { font-size: 10px; color: #475569; text-align: center; margin-top: 10px; }
 
-/* Модалка (скрыта по дефолту) */
-.hidden { display: none; }
-#result-modal {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: flex; justify-content: center; align-items: center;
+/* Модалка */
+.hidden { display: none !important; }
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
     z-index: 100;
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s;
 }
-.modal-content {
-    background: #1e293b;
-    padding: 30px;
+
+.modal-card {
+    background: var(--card-bg);
+    width: 85%;
+    padding: 25px;
     border-radius: 20px;
-    border: 1px solid #00f2ff;
+    text-align: center;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow);
 }
+
+.modal-icon { font-size: 50px; margin-bottom: 15px; }
+.promo-box {
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 15px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    border: 1px dashed #334155;
+}
+.promo-box span { font-family: monospace; font-size: 16px; letter-spacing: 1px; }
+.icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; }
+.action-btn { width: 100%; padding: 12px; border-radius: 10px; border: none; background: white; color: black; font-weight: 700; cursor: pointer; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
