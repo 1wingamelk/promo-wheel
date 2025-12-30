@@ -8,7 +8,7 @@ let offers = [];
 let history = JSON.parse(localStorage.getItem('myWins')) || [];
 
 const CARD_WIDTH = 100;
-const FULL_STEP = 100; // Gap 0 для минимализма
+const FULL_STEP = 100; 
 
 async function init() {
     try {
@@ -18,10 +18,11 @@ async function init() {
         resetTape();
         
         if (tg.initDataUnsafe?.user) {
-            document.getElementById('username').innerText = (tg.initDataUnsafe.user.username || 'USER').toUpperCase();
+            const name = tg.initDataUnsafe.user.first_name || 'USER';
+            document.getElementById('username').innerText = name.toUpperCase() + ' / СИСТЕМА';
         }
         renderHistory();
-    } catch (e) { console.error("INIT_ERROR"); }
+    } catch (e) { console.error("ОШИБКА_ИНИЦИАЛИЗАЦИИ"); }
 }
 
 function renderTape(count) {
@@ -43,7 +44,7 @@ function resetTape() {
 
 spinBtn.onclick = () => {
     spinBtn.disabled = true;
-    spinBtn.innerText = "PROCESS_RUNNING...";
+    spinBtn.innerText = "ПРОЦЕСС_ЗАПУЩЕН...";
     resetTape();
 
     setTimeout(() => {
@@ -60,7 +61,7 @@ spinBtn.onclick = () => {
             showWin(winner);
             saveWin(winner);
             spinBtn.disabled = false;
-            spinBtn.innerText = "RUN_PROCESS (25.00₽)";
+            spinBtn.innerText = "ЗАПУСТИТЬ_ПРОЦЕСС (25.00₽)";
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }, 4100);
     }, 50);
@@ -72,30 +73,47 @@ function showWin(item) {
     document.getElementById('modal-title').innerText = item.title.toUpperCase();
 
     if (item.type === 'link') {
-        promoBox.innerHTML = `<span style="font-size:14px; color:#666;">REDIRECT_REQUIRED</span>`;
-        claimBtn.innerText = "OPEN_LINK";
-        claimBtn.onclick = () => { window.open(item.url, '_blank'); closeModal(); };
+        promoBox.innerHTML = `<span style="font-size:14px; color:#666;">ТРЕБУЕТСЯ_ПЕРЕХОД</span>`;
+        claimBtn.innerText = "ОТКРЫТЬ_ССЫЛКУ";
+        claimBtn.onclick = function() {
+            window.open(item.url, '_blank');
+            closeModal();
+        };
     } else {
         promoBox.innerHTML = `<span>${item.code}</span>`;
-        claimBtn.innerText = "COPY_AND_CLOSE";
-        claimBtn.onclick = () => {
-            // Исправленная функция копирования
+        claimBtn.innerText = "КОПИРОВАТЬ_И_ЗАКРЫТЬ";
+        
+        // Четкая логика: Копируем -> Уведомляем -> Закрываем
+        claimBtn.onclick = function() {
             const textToCopy = item.code;
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(textToCopy);
-            } else {
-                let textArea = document.createElement("textarea");
-                textArea.value = textToCopy;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-            tg.showAlert("COPIED_TO_CLIPBOARD");
-            closeModal();
+            copyToClipboard(textToCopy);
+            tg.showAlert("СКОПИРОВАНО В БУФЕР ОБМЕНА");
+            closeModal(); // Закрытие окна
         };
     }
     document.getElementById('modal').classList.remove('hidden');
+}
+
+// Универсальная функция копирования
+function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text);
+    } else {
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Ошибка копирования', err);
+        }
+        document.body.removeChild(textArea);
+    }
 }
 
 function saveWin(item) {
@@ -108,13 +126,19 @@ function renderHistory() {
     historyList.innerHTML = history.map(i => `
         <div class="history-item">
             <span>${i.icon} ${i.title.toUpperCase()}</span>
-            <span>${i.type === 'link' ? 'LINK' : i.code}</span>
+            <span>${i.type === 'link' ? 'ССЫЛКА' : i.code}</span>
         </div>
     `).join('');
 }
 
-function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-function toggleProfile() { document.getElementById('profile-modal').classList.toggle('hidden'); }
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+}
+
+function toggleProfile() {
+    document.getElementById('profile-modal').classList.toggle('hidden');
+}
+
 document.getElementById('profile-trigger').onclick = toggleProfile;
 
 init();
