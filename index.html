@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lucky Spin — Функционал</title>
+    <title>Lucky Drop / Functional</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -14,9 +14,7 @@
                 <span class="avatar">●</span>
                 <span id="username">ПОЛЬЗОВАТЕЛЬ / СИСТЕМА</span>
             </div>
-            <div class="status-box">
-                ПОПЫТКИ: <span id="spins">1</span>
-            </div>
+            <div class="status-box">ПОПЫТКИ: <span id="spins">1</span></div>
         </header>
 
         <main>
@@ -29,7 +27,7 @@
             
             <section class="mission">
                 <h1>УДАЧА / ВЫБОР</h1>
-                <p>Функциональное сообщество для получения цифровых активов и вознаграждений.</p>
+                <p>Минималистичный сервис распределения цифровых активов и вознаграждений.</p>
             </section>
         </main>
 
@@ -48,16 +46,20 @@
                 <span id="modal-title">УСПЕХ / ВЫИГРЫШ</span>
                 <button onclick="closeModal()">[X]</button>
             </div>
-            <div class="promo-content" id="promo-box"></div>
-            <button id="claim-btn" class="action-btn">КОПИРОВАТЬ_И_ЗАКРЫТЬ</button>
+            <div class="promo-box" id="promo-box"></div>
+            <button id="claim-btn" class="action-btn">КОПИРОВАТЬ</button>
         </div>
     </div>
 
     <div id="profile-modal" class="modal hidden">
         <div class="profile-card">
             <div class="p-header">
-                <h2>ИСТОРИЯ / НАГРАДЫ</h2>
+                <h2>ПРОФИЛЬ / ИСТОРИЯ</h2>
                 <button onclick="toggleProfile()">[ЗАКРЫТЬ]</button>
+            </div>
+            <div class="sub-management">
+                <div class="sub-info">СТАТУС: <b>АКТИВЕН</b></div>
+                <button class="cancel-sub" onclick="cancelSubscription()">Отключить подписку</button>
             </div>
             <div id="history-list"></div>
         </div>
